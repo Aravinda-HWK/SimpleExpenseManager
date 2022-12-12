@@ -1,6 +1,5 @@
 package lk.ac.mrt.cse.dbs.simpleexpensemanager.data.impl;
 
-import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -26,7 +25,7 @@ public class PersistMemoryAccountDAO implements AccountDAO {
     public List<String> getAccountNumbersList() {
         ArrayList<String> arrayList=new ArrayList<>();SQLiteDatabase database= accountDatabase.getReadableDatabase();
 
-        @SuppressLint("Recycle") Cursor result=database.rawQuery("select Account_No from Account",null);
+        Cursor result=database.rawQuery("select Account_No from Account",null);
         result.moveToFirst();
 
         while (!result.isAfterLast()){
@@ -36,6 +35,7 @@ public class PersistMemoryAccountDAO implements AccountDAO {
         for (int i=0;i<arrayList.size();i++){
             System.out.println(arrayList.get(i));
         }
+        result.close();
         return arrayList;
     }
 
@@ -44,7 +44,7 @@ public class PersistMemoryAccountDAO implements AccountDAO {
     public List<Account> getAccountsList() {
         List<Account> accountList=new ArrayList<>();
         SQLiteDatabase database= accountDatabase.getReadableDatabase();
-        @SuppressLint("Recycle") Cursor result=database.rawQuery("select Account_No from Account",null);
+        Cursor result=database.rawQuery("select Account_No from Account",null);
         result.moveToFirst();
 
         while (!result.isAfterLast()){
@@ -54,6 +54,7 @@ public class PersistMemoryAccountDAO implements AccountDAO {
                     result.getDouble(result.getColumnIndex("Balance")));
             accountList.add(account);
         }
+        result.close();
         return accountList;
     }
 
@@ -61,7 +62,7 @@ public class PersistMemoryAccountDAO implements AccountDAO {
     @Override
     public Account getAccount(String accountNo) {
         SQLiteDatabase database= accountDatabase.getReadableDatabase();
-        @SuppressLint("Recycle") Cursor result=database.rawQuery("select * from Account",null);
+        Cursor result=database.rawQuery("select * from Account",null);
         Account account=null;
         while (!result.isAfterLast()){
             account=new Account(result.getString(result.getColumnIndex("Account_No")),
@@ -70,6 +71,7 @@ public class PersistMemoryAccountDAO implements AccountDAO {
                     result.getDouble(result.getColumnIndex("Balance")));
             result.moveToNext();
         }
+        result.close();
         return account;
     }
 
@@ -97,7 +99,7 @@ public class PersistMemoryAccountDAO implements AccountDAO {
     @Override
     public void updateBalance(String accountNo, ExpenseType expenseType, double amount) throws InvalidAccountException {
         SQLiteDatabase database= accountDatabase.getWritableDatabase();
-        @SuppressLint("Recycle") Cursor result=database.rawQuery("select * from Account",null);
+        Cursor result=database.rawQuery("select * from Account",null);
         ContentValues contentValues=new ContentValues();
         if (result.moveToFirst()){
             do{
@@ -132,5 +134,6 @@ public class PersistMemoryAccountDAO implements AccountDAO {
             contentValues.put("Balance",finalAccountBalance);
             database.update("Account",contentValues,"Account_No=?",new String[]{accountNo});
         }
+        result.close();
     }
 }

@@ -1,4 +1,4 @@
-#Mon Dec 12 09:53:08 IST 2022
+#Mon Dec 12 10:17:15 IST 2022
 base.0=C\:\\Aravinda's File\\ACA Mine\\Semester 3\\CS3043-Database Systems\\Mini Project\\SimpleExpenseManager\\app\\build\\intermediates\\dex\\debug\\mergeDexDebug\\classes.dex
 renamed.0=classes.dex
 path.0=classes.dex
