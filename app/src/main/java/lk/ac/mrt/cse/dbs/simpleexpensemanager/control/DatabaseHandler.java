@@ -1,19 +1,11 @@
 package lk.ac.mrt.cse.dbs.simpleexpensemanager.control;
 
-import android.content.ContentValues;
+
 import android.content.Context;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.support.annotation.Nullable;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
-
-import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.ExpenseType;
-import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.Transaction;
 
 public class DatabaseHandler extends SQLiteOpenHelper {
 
@@ -35,19 +27,21 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         super(context, Database_Name, null, VERSION);
     }
 
+    //This method is used to create tables for the database which is named as my registration number
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
-        String Table_Create_Query_1="create table Account (Account_No text primary key,Bank text,Account_Holder text,Balance real)";
-        String Table_Create_Query_2="create table Transaction_Table (Transaction_Id integer primary key autoincrement,Date text,Account_No text,Type text,Amount real)";
+        String Table_Create_Query_1="create table "+Table_Name+"("+Account_Number+" text primary key,"+Bank+" text,"+Account_Holder+" text,"+Balance+" real)";
+        String Table_Create_Query_2="create table "+Table_Name_2+" ("+Transaction_Id+" integer primary key autoincrement,"+Date+" text,"+Account_Number+" text,"+Type+" text,"+Amount+" real)";
         sqLiteDatabase.execSQL(Table_Create_Query_1);
         sqLiteDatabase.execSQL(Table_Create_Query_2);
 
     }
 
+    //This method is used to upgrade purposes in database
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
-        String DROP_TABLE_QUERY_1="DROP TABLE IF EXISTS Account";
-        String DROP_TABLE_QUERY_2="DROP TABLE IF EXISTS Transaction_Table";
+        String DROP_TABLE_QUERY_1="DROP TABLE IF EXISTS "+Table_Name;
+        String DROP_TABLE_QUERY_2="DROP TABLE IF EXISTS "+Table_Name_2;
         sqLiteDatabase.execSQL(DROP_TABLE_QUERY_1);
         sqLiteDatabase.execSQL(DROP_TABLE_QUERY_2);
         onCreate(sqLiteDatabase);

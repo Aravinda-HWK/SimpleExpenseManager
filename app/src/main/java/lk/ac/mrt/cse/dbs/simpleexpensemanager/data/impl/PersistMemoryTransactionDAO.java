@@ -13,18 +13,19 @@ import java.util.Locale;
 
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.control.DatabaseHandler;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.TransactionDAO;
-import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.exception.InvalidAccountException;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.ExpenseType;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.Transaction;
 
 public class PersistMemoryTransactionDAO implements TransactionDAO {
-    private DatabaseHandler databaseHandler;
+    private final DatabaseHandler databaseHandler;
 
     public PersistMemoryTransactionDAO(DatabaseHandler database) {
         this.databaseHandler = database;
     }
     @Override
-    public void logTransaction(Date date, String accountNo, ExpenseType expenseType, double amount) throws InvalidAccountException {
+
+    //Add a transaction to the Transaction table
+    public void logTransaction(Date date, String accountNo, ExpenseType expenseType, double amount) {
         SQLiteDatabase database=databaseHandler.getWritableDatabase();
         ContentValues contentValues=new ContentValues();
         contentValues.put("Date",date.toString());
@@ -34,6 +35,7 @@ public class PersistMemoryTransactionDAO implements TransactionDAO {
         database.insert("Transaction_Table",null,contentValues);
     }
 
+    //Get all transaction object list from the transaction table
     @Override
     public List<Transaction> getAllTransactionLogs() throws ParseException {
         ArrayList<Transaction> transactionArrayList=new ArrayList<>();
@@ -49,7 +51,7 @@ public class PersistMemoryTransactionDAO implements TransactionDAO {
                     type=ExpenseType.INCOME;
                 }
                 SimpleDateFormat simpleDateFormat=new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH);
-                Date date=new Date();
+                Date date;
                 date=simpleDateFormat.parse(cursor.getString(1));
                 transactionArrayList.add(new Transaction(date,cursor.getString(2),type,cursor.getDouble(4)));
             }while (cursor.moveToNext());
@@ -58,12 +60,12 @@ public class PersistMemoryTransactionDAO implements TransactionDAO {
         return transactionArrayList;
     }
 
+    //Get the latest transaction when the limit is given
     @Override
     public List<Transaction> getPaginatedTransactionLogs(int limit) throws ParseException {
 
-        ArrayList<Transaction> transactionArrayList=new ArrayList<>();
+        ArrayList<Transaction> transactionArrayList;
         transactionArrayList= (ArrayList<Transaction>) getAllTransactionLogs();
-        SQLiteDatabase database=databaseHandler.getReadableDatabase();
         if (transactionArrayList.size()>limit){
             return transactionArrayList.subList(transactionArrayList.size()-limit,transactionArrayList.size());
         }else{

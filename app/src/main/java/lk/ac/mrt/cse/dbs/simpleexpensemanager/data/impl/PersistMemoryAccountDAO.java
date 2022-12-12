@@ -1,5 +1,6 @@
 package lk.ac.mrt.cse.dbs.simpleexpensemanager.data.impl;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -13,21 +14,22 @@ import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.exception.InvalidAccountExcep
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.Account;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.ExpenseType;
 
-public class PersistMemoryAccountDAO<contentValues> implements AccountDAO {
-
+public class PersistMemoryAccountDAO implements AccountDAO {
 
     DatabaseHandler accountDatabase;
     public PersistMemoryAccountDAO(DatabaseHandler accoutDatabase) {
         this.accountDatabase =accoutDatabase;
     }
+
+    //Get all account number list
     @Override
     public List<String> getAccountNumbersList() {
         ArrayList<String> arrayList=new ArrayList<>();SQLiteDatabase database= accountDatabase.getReadableDatabase();
 
-        Cursor result=database.rawQuery("select Account_No from Account",null);
+        @SuppressLint("Recycle") Cursor result=database.rawQuery("select Account_No from Account",null);
         result.moveToFirst();
 
-        while (result.isAfterLast()==false){
+        while (!result.isAfterLast()){
             arrayList.add(result.getString(result.getColumnIndex("Account_No")));
             result.moveToNext();
         }
@@ -37,14 +39,15 @@ public class PersistMemoryAccountDAO<contentValues> implements AccountDAO {
         return arrayList;
     }
 
+    //Get all account object list
     @Override
     public List<Account> getAccountsList() {
         List<Account> accountList=new ArrayList<>();
         SQLiteDatabase database= accountDatabase.getReadableDatabase();
-        Cursor result=database.rawQuery("select Account_No from Account",null);
+        @SuppressLint("Recycle") Cursor result=database.rawQuery("select Account_No from Account",null);
         result.moveToFirst();
 
-        while (result.isAfterLast()==false){
+        while (!result.isAfterLast()){
             Account account= new Account(result.getString(result.getColumnIndex("Account_No")),
                     result.getString(result.getColumnIndex("Bank")),
                     result.getString(result.getColumnIndex("Account_Holder")),
@@ -54,12 +57,13 @@ public class PersistMemoryAccountDAO<contentValues> implements AccountDAO {
         return accountList;
     }
 
+    //Get Account object for given account number
     @Override
-    public Account getAccount(String accountNo) throws InvalidAccountException {
+    public Account getAccount(String accountNo) {
         SQLiteDatabase database= accountDatabase.getReadableDatabase();
-        Cursor result=database.rawQuery("select * from Account",null);
+        @SuppressLint("Recycle") Cursor result=database.rawQuery("select * from Account",null);
         Account account=null;
-        while (result.isAfterLast()==false){
+        while (!result.isAfterLast()){
             account=new Account(result.getString(result.getColumnIndex("Account_No")),
                     result.getString(result.getColumnIndex("Bank")),
                     result.getString(result.getColumnIndex("Account_Holder")),
@@ -69,6 +73,7 @@ public class PersistMemoryAccountDAO<contentValues> implements AccountDAO {
         return account;
     }
 
+    //Add account to the Account table
     @Override
     public void addAccount(Account account) {
         SQLiteDatabase database= accountDatabase.getWritableDatabase();
@@ -81,16 +86,18 @@ public class PersistMemoryAccountDAO<contentValues> implements AccountDAO {
 
     }
 
+    //Remove account when the account number is given
     @Override
-    public void removeAccount(String accountNo) throws InvalidAccountException {
+    public void removeAccount(String accountNo) {
         SQLiteDatabase database= accountDatabase.getWritableDatabase();
         database.delete("Account","Account_No=?",new String[]{accountNo});
     }
 
+    //Method to update account balance in account table
     @Override
     public void updateBalance(String accountNo, ExpenseType expenseType, double amount) throws InvalidAccountException {
         SQLiteDatabase database= accountDatabase.getWritableDatabase();
-        Cursor result=database.rawQuery("select * from Account",null);
+        @SuppressLint("Recycle") Cursor result=database.rawQuery("select * from Account",null);
         ContentValues contentValues=new ContentValues();
         if (result.moveToFirst()){
             do{
@@ -114,14 +121,16 @@ public class PersistMemoryAccountDAO<contentValues> implements AccountDAO {
         }
 
         if (finalAccountBalance<0){
+
+            //First delete the transaction which was added recently because it is not a valid transaction
             String Query = "DELETE FROM Transaction_Table WHERE Transaction_Id = (SELECT MAX(Transaction_Id) FROM Transaction_Table);";
             database.execSQL(Query);
+            //Throw an error
             String error="Account balance is not sufficient";
             throw new InvalidAccountException(error);
         }else{
             contentValues.put("Balance",finalAccountBalance);
             database.update("Account",contentValues,"Account_No=?",new String[]{accountNo});
         }
-
     }
 }

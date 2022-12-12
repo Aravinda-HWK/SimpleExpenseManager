@@ -8,7 +8,7 @@ import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.AccountDAO;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.TransactionDAO;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.impl.PersistMemoryAccountDAO;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.impl.PersistMemoryTransactionDAO;
-import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.Account;
+
 
 public class PersistentExpenseManager extends ExpenseManager{
     DatabaseHandler accountDatabase;
@@ -17,18 +17,14 @@ public class PersistentExpenseManager extends ExpenseManager{
         setup();
     }
 
+    //Create PersistMemoryAccountDAO class and PersistMemoryTransaction class
     @Override
-    public void setup() throws ExpenseManagerException {
+    public void setup() {
         AccountDAO persistMemoryAccountDAO=new PersistMemoryAccountDAO(accountDatabase);
         setAccountsDAO(persistMemoryAccountDAO);
 
         TransactionDAO persistMemoryTransactionDAO=new PersistMemoryTransactionDAO(accountDatabase);
         setTransactionsDAO(persistMemoryTransactionDAO);
 
-       /* Account dummyAcct1 = new Account("12345A", "Yoda Bank", "Anakin Skywalker", 10000.0);
-        Account dummyAcct2 = new Account("78945Z", "Clone BC", "Obi-Wan Kenobi", 80000.0);
-        //PersistentExpenseManager pe=new PersistentExpenseManager();
-        persistMemoryAccountDAO.addAccount(dummyAcct1);
-        persistMemoryAccountDAO.addAccount(dummyAcct2);*/
     }
 }
