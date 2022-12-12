@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -64,12 +65,25 @@ public class PersistMemoryTransactionDAO implements TransactionDAO {
     @Override
     public List<Transaction> getPaginatedTransactionLogs(int limit) throws ParseException {
 
-        ArrayList<Transaction> transactionArrayList;
-        transactionArrayList= (ArrayList<Transaction>) getAllTransactionLogs();
-        if (transactionArrayList.size()>limit){
-            return transactionArrayList.subList(transactionArrayList.size()-limit,transactionArrayList.size());
-        }else{
-            return transactionArrayList;
+        ArrayList<Transaction> transactionArrayList=new ArrayList<>();
+        SQLiteDatabase database=databaseHandler.getReadableDatabase();
+        Cursor cursor=database.rawQuery("select * from Transaction_Table order by Transaction_ID desc limit "+limit,null);
+        if (cursor.moveToFirst()){
+            do{
+                ExpenseType type;
+                if (cursor.getString(3).equals("EXPENSE")){
+                    type=ExpenseType.EXPENSE;
+                }
+                else{
+                    type=ExpenseType.INCOME;
+                }
+                SimpleDateFormat simpleDateFormat=new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH);
+                Date date;
+                date=simpleDateFormat.parse(cursor.getString(1));
+                transactionArrayList.add(new Transaction(date,cursor.getString(2),type,cursor.getDouble(4)));
+            }while (cursor.moveToNext());
         }
+        cursor.close();
+        return transactionArrayList;
     }
 }
